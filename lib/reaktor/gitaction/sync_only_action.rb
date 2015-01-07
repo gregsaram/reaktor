@@ -1,6 +1,6 @@
 module Reaktor
 module GitAction
-class SyncOnlyAction < Action
+    class SyncOnlyAction < Action
     
     def initialize(options = {})
       super(options)
@@ -18,4 +18,6 @@ class SyncOnlyAction < Action
         Notification::Notifier.instance.notification = "r10k deploy environment for #{branch_name} finished"
       end
     end
+end
+end
 end
