@@ -3,7 +3,7 @@ require 'logger'
 
 module Reaktor
   module Jobs
-    class CreateEvent
+    class SyncOnlyEvent
       include Event
 
       @queue   = :resque_create
