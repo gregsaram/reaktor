@@ -18,6 +18,7 @@ module GitAction
     # @return [Reaktor::Action] subclass instance suitable to perform necessary actions
     # , or `nil`.
     def action_type
+      skip_repo_name = "puppet-hieradata"
       logger      = @logger
       repo_name   = @json['repository']['name']
       repo_ref    = @json['ref']
@@ -27,35 +28,46 @@ module GitAction
       ref_type    = ref_array[1]
       branch_name  = ref_array[2]
 
-      if @created && isBranch(ref_type)
-        logger.info("Create Action")
-        options = { :module_name => repo_name,
-                    :branch_name => branch_name,
-		                :logger => logger
-                  }
-        action = Reaktor::GitAction::CreateAction.new(options)  
-        return action
-      end
+      if repo_name != skip_repo_name
 
-      if @deleted && isBranch(ref_type)
-        logger.info("Delete Action")
-        options = { :branch_name => branch_name,
-		    :logger => logger
-                  }
-        action = Reaktor::GitAction::DeleteAction.new(options)  
-        return action
-      end
+          if @created && isBranch(ref_type)
+            logger.info("Create Action")
+            options = { :module_name => repo_name,
+                        :branch_name => branch_name,
+    		                :logger => logger
+                      }
+            action = Reaktor::GitAction::CreateAction.new(options)  
+            return action
+          end
 
-      if !@created && !@deleted
-        logger.info("Modify Action")
-        options = { :module_name => repo_name,
-                    :branch_name => branch_name,
-		                :logger => logger
-                  }
-        action = Reaktor::GitAction::ModifyAction.new(options)  
-        return action
-      end
+          if @deleted && isBranch(ref_type)
+            logger.info("Delete Action")
+            options = { :branch_name => branch_name,
+    		    :logger => logger
+                      }
+            action = Reaktor::GitAction::DeleteAction.new(options)  
+            return action
+          end
 
+          if !@created && !@deleted
+            logger.info("Modify Action")
+            options = { :module_name => repo_name,
+                        :branch_name => branch_name,
+    		                :logger => logger
+                      }
+            action = Reaktor::GitAction::ModifyAction.new(options)  
+            return action
+          end
+      
+      else 
+          logger.info("Skip Puppetfile Update Env Action")
+          options = { :module_name => repo_name,
+                      :branch_name => branch_name,
+      		            :logger => logger
+                    }
+          action = Reaktor::GitAction::SyncOnlyAction.new(options)  
+          return action
+      end
     end
 
     def isBranch(refType)
